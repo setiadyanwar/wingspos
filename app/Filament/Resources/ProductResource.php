@@ -4,15 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
+use App\Models\Category;
 use App\Models\Product;
 use Filament\Actions\DeleteAction;
 use Filament\Forms;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Group;
+use Filament\Forms\Components\MarkdownEditor;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Markdown;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,62 +29,67 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+
+    protected static ?int $navigationIconSort = 2;
+
+    protected static ?string $navigationgroup = 'Toko';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Card::make()
-                ->schema([
-                    TextInput::make('nama_produk')
+                Group::make()->schema([
+                    Section::make('Product Information')->schema([
+                        TextInput::make('nama_produk')
                         ->label('Nama Produk')
                         ->required(),
 
-                    TextInput::make('harga_produk')
-                        ->label('Harga Produk')
-                        ->required()
-                        ->type('number')
-                        ->minValue(0) // Pastikan bahwa ini sesuai dengan kebutuhan Anda
-                        ->maxValue(99999999),
-
-                    TextInput::make('jumlah_stok')
-                        ->label('Jumlah Stok')
-                        ->required(),
-
-                    Textarea::make('deskripsi_produk')               
+                        MarkdownEditor::make('deskripsi_produk')               
                         ->label('Deskripsi Produk')
                         ->required(),
 
-                    
-                    FileUpload::make('gambar_produk')
+                    ]),
+
+                    Section::make('Images')->schema([
+                        FileUpload::make('gambar_produk')
                         ->label('Gambar Produk')
                         ->directory('products-images')
-                        ->image()
-                        ->required(),
-                ])
-                // Forms\Components\TextInput::make('nama_produk')
-                //     ->label('Nama Produk')
-                //     ->required(),
-                // Forms\Components\TextInput::make('harga_produk')
-                //     ->label('Harga Produk')
-                //     ->required()
-                //     ->type('number')
-                //     ->minValue(0)
-                //     ->maxValue(99999999.99),
-                // Forms\Components\TextInput::make('jumlah_stok') // Use 'number' for numeric inputs
-                //     ->label('Jumlah Stok')
-                //     ->required(),
-                // Forms\Components\Textarea::make('deskripsi_produk')               
-                //     ->label('Deskripsi Produk')
-                //     ->required(),
-                // Forms\Components\FileUpload::make('gambar_produk')
-                //     ->label('Gambar Produk')
-                //     ->directory('products-images')
-                //     ->image()
-                //     ->required(),
-                
-            ]);
+                        ->maxFiles(5)
+                        ->reorderable(),
+                        
+                    ])
+                ])->columnSpan(2),
+
+                Group::make()->schema([
+                    Section::make('Price')->schema([
+                        TextInput::make('harga_produk')
+                            ->label('Harga Produk')
+                            ->required()
+                            ->type('number')
+                            ->minValue(0) // Pastikan bahwa ini sesuai dengan kebutuhan Anda
+                            ->maxValue(99999999),
+                    ]),
+                    Section::make('Stock')->schema([
+                        TextInput::make('jumlah_stok')
+                            ->label('Jumlah Stok')
+                            ->required()
+                            ->type('number')
+                            ->minValue(0) // Pastikan bahwa ini sesuai dengan kebutuhan Anda
+                            ->maxValue(99999999),
+                    ]),
+
+                    Section::make('Category')->schema([
+                        Select::make('category_id')
+                            ->label('Category')
+                            ->searchable()
+                            ->required()
+                            ->preload()
+                            ->relationship('category', 'name'),
+                    ]),
+
+                ])->columnSpan(1),
+            ])->columns(3);
     }
 
     public static function table(Table $table): Table
@@ -85,37 +97,39 @@ class ProductResource extends Resource
         return $table
         ->columns([
             Tables\Columns\ImageColumn::make('gambar_produk') // Menampilkan gambar
-                ->label('Gambar Produk')
+                ->label('Gambar')
                 ->disk('public')
                 ->size(50)
                 ->url(fn($record) => asset('storage/' . $record->gambar_produk)), 
             Tables\Columns\TextColumn::make('nama_produk')
-                ->label('Nama Produk')
+                ->label('Nama')
+                ->searchable(),
+            Tables\Columns\TextColumn::make('category.name')
+                ->label('Kategori')
+                ->badge()
+                ->sortable()
                 ->searchable(),
             Tables\Columns\TextColumn::make('harga_produk')
-                ->label('Harga Produk')
+                ->label('Harga')
                 ->money('IDR', locale: 'id')
                 ->searchable(),
             Tables\Columns\TextColumn::make('jumlah_stok')
                 ->label('Jumlah Stok')
                 ->searchable(),
             Tables\Columns\TextColumn::make('deskripsi_produk')
-                ->label('Deskripsi Produk')
+                ->label('Deskripsi')
                 ->searchable(),
-            
 
-                // Kolom Debug URL Gambar
-            // Tables\Columns\TextColumn::make('gambar_produk')
-            // ->label('URL Gambar')
-            // ->getStateUsing(fn ($record) => Storage::url($record->gambar_produk)),
         ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
-                    ->successNotificationTitle('User deleted'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\ViewAction::make(),
+                    DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -130,6 +144,8 @@ class ProductResource extends Resource
             //
         ];
     }
+
+
 
     public static function getPages(): array
     {

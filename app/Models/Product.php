@@ -22,4 +22,8 @@ class Product extends Model
         'deskripsi_produk',
         'gambar_produk',
     ];
+
+    public function category(){
+        return $this->belongsTo(Category::class);
+    }
 }

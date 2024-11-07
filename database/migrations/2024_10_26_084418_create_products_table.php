@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('nama_produk');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnDelete();
             $table->decimal('harga_produk', 10, 2); // 10 digits in total, 2 for decimals
             $table->integer('jumlah_stok');
-            $table->text('deskripsi_produk'); // Use 'text' for longer descriptions
+            $table->text('deskripsi_produk')->nullable(); // Use 'text' for longer descriptions
             $table->string('gambar_produk')->nullable(); // Optional, if the image might be null
             $table->timestamps();
         });
