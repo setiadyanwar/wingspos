@@ -1,79 +1,57 @@
-<div class="grid grid-cols-3 gap-4">
-    <!-- Kolom Kiri: Galeri Produk -->
-    <div class="col-span-2">
-        <!-- Pencarian Produk -->
-        <div class="mb-4">
-            <input type="text" placeholder="Cari produk..." class="w-full p-2 rounded-lg bg-gray-800 text-white placeholder-gray-500" />
+<div class="container mx-auto p-4">
+    <div class="flex flex-col lg:flex-row lg:space-x-4">
+        <!-- Left Side: Product Gallery -->
+        <div class="lg:w-3/4 p-2">
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <input wire:model.debounce.300ms="search" type="text" placeholder="Cari produk..." class="p-2 border rounded-xl w-full dark:bg-gray-700 dark:text-white" />
+            </div>
+
+            <!-- Product Gallery -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                @foreach($products as $product)
+                    <div wire:click="selectProduct({{ $product->id }})" class="p-4 bg-gray-100 dark:bg-gray-800 rounded cursor-pointer">
+                        <img src="{{ asset('storage/' . $product['gambar_produk']) }}" alt="Product Image" class="w-full h-32 rounded-lg object-cover mb-2" />
+                        <h3 class="text-lg font-bold text-black dark:text-white">{{ $product['nama_produk'] }}</h3>
+                        <p class="text-black dark:text-white">Rp {{ number_format($product['harga_produk'], 0, ',', '.') }}</p>
+                        <p class="text-black dark:text-white">Stok: {{ $product['jumlah_stok'] }}</p>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
-        <!-- Grid Produk -->
-        <div class="grid grid-cols-3 gap-4">
-            @foreach ($products as $product)
-                <x-filament::card>
-                    <img src="{{ Storage::url('products-images/' . $product->image_url) }}" alt="{{ $product->name }}" class="w-full h-32 object-cover mb-2 rounded" />
-                    <h3 class="text-white font-semibold">{{ $product->name }}</h3>
-                    <p class="text-gray-400">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                    <p class="text-gray-400">Stok: {{ $product->stock }}</p>
-                </x-filament::card>
-            @endforeach
-        </div>
+        <!-- Right Side: Selected Product & Cart -->
+        <div class=" lg:w-1/4 lg:min-w-[250px] lg:flex-shrink-0 bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold mb-2 text-black dark:text-white">Detail Produk</h2>
+            @if ($selectedProduct)
+                <div class="text-center">
+                    <img src="{{ asset('storage/' . $product['gambar_produk']) }}" alt="Selected Product" class="w-32 h-32 object-cover mb-2" />
+                    <h3 class="text-lg font-bold text-black dark:text-white">{{ $selectedProduct->nama_produk }}</h3>
+                    <p class="text-black dark:text-white">Harga: Rp {{ number_format($selectedProduct->harga_produk, 0, ',', '.') }}</p>
 
-        <!-- Pagination atau tambahan lainnya jika diperlukan -->
-        <div class="mt-4">
-            {{ $products->links() }}
-        </div>
-    </div>
-
-    <!-- Kolom Kanan: Form Checkout -->
-    <div class="col-span-1 bg-gray-900 p-4 rounded-lg shadow-md">
-        <!-- Total Pembayaran -->
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold text-white">Total: Rp 5.600</h2>
-            <div class="flex items-center mt-2">
-                <img src="{{ Storage::url('products-images/indomie-goreng.png') }}" alt="Indomie Goreng" class="w-12 h-12 object-cover rounded mr-2" />
-                <div class="text-white">
-                    <p>Indomie Goreng</p>
-                    <div class="flex items-center space-x-2">
-                        <button class="bg-yellow-500 px-2 rounded text-white">-</button>
-                        <span>2</span>
-                        <button class="bg-green-500 px-2 rounded text-white">+</button>
+                    <!-- Add to Cart Controls -->
+                    <div class="flex items-center justify-center mt-4">
+                        <button wire:click="updateCart({{ $selectedProduct->id }}, false)" class="px-4 py-2 bg-red-500 text-white rounded">-</button>
+                        <span class="mx-4 text-black dark:text-white">{{ collect($cart)->where('id', $selectedProduct->id)->first()['quantity'] ?? 0 }}</span>
+                        <button wire:click="updateCart({{ $selectedProduct->id }}, true)" class="px-4 py-2 bg-green-500 text-white rounded">+</button>
                     </div>
                 </div>
-            </div>
+            @else
+                <p class="text-black dark:text-white">Pilih produk dari galeri untuk melihat detail.</p>
+            @endif
+
+            <!-- Cart Summary -->
+            <h2 class="text-xl font-bold mt-6 mb-2 text-black dark:text-white">Keranjang Belanja</h2>
+            <ul class="mb-4 text-black dark:text-white">
+                @foreach($cart as $item)
+                    <li class="flex justify-between">
+                        <span>{{ $item['nama_produk'] }}</span>
+                        <span>{{ $item['quantity'] }} x Rp {{ number_format($item['harga_produk'], 0, ',', '.') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+            <hr class="my-2">
+            <p class="text-lg font-bold text-black dark:text-white">Total Harga: Rp {{ number_format($totalPrice, 0, ',', '.') }}</p>
         </div>
-
-        <!-- Form Checkout -->
-        <h2 class="text-lg font-semibold text-white mb-4">Form Checkout</h2>
-        <form wire:submit.prevent="checkout">
-            <div class="mb-4">
-                <label class="text-gray-400">Name Customer*</label>
-                <input type="text" class="w-full bg-gray-800 text-white p-2 rounded" placeholder="Nama customer" />
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-gray-400">Gender*</label>
-                <select class="w-full bg-gray-800 text-white p-2 rounded">
-                    <option value="">Select an option</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-gray-400">Total Price</label>
-                <input type="text" class="w-full bg-gray-800 text-white p-2 rounded" placeholder="Total price" value="5600" />
-            </div>
-            
-            <div class="mb-4">
-                <label class="text-gray-400">Metode Pembayaran*</label>
-                <select class="w-full bg-gray-800 text-white p-2 rounded">
-                    <option value="">Select an option</option>
-                    <option value="cash">Cash</option>
-                    <option value="credit">Credit Card</option>
-                </select>
-            </div>
-
-            <button type="submit" class="w-full bg-red-500 text-white py-2 rounded mt-4">Checkout</button>
-        </form>
     </div>
 </div>
