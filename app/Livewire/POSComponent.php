@@ -13,6 +13,7 @@ class POSComponent extends Component
     public $search = '';
     public $products = [];
     public $totalPrice = 0;
+    public $totalItems = 0;
     public $cart = [];
     public $cartQuantities = [];
     public $selectedProduct = null;
@@ -41,7 +42,7 @@ class POSComponent extends Component
 
     public function selectProduct($productId)
     {
-        $this->selectedProduct = Product::find($productId);
+        $this->addToCart($productId);  // Tambahkan produk ke keranjang saat dipilih
     }
 
     public function addToCart($productId)
@@ -60,24 +61,28 @@ class POSComponent extends Component
         }
     }
 
-    public function increaseQuantity($productId)
+    public function updateCart($productId, $increase = true)
     {
         if (isset($this->cartQuantities[$productId])) {
-            $this->cartQuantities[$productId]++;
-            $this->totalPrice += $this->cart[$productId]->harga_produk;
-        }
-    }
+            if ($increase) {
+                $this->cartQuantities[$productId]++;
+                $this->totalPrice += $this->cart[$productId]->harga_produk;
+            } else {
+                $this->cartQuantities[$productId]--;
 
-    public function decreaseQuantity($productId)
-    {
-        if (isset($this->cartQuantities[$productId]) && $this->cartQuantities[$productId] > 1) {
-            $this->cartQuantities[$productId]--;
-            $this->totalPrice -= $this->cart[$productId]->harga_produk;
-        } elseif (isset($this->cartQuantities[$productId]) && $this->cartQuantities[$productId] == 1) {
-            // Remove product from cart if quantity is 1 and decrease total price
-            $this->totalPrice -= $this->cart[$productId]->harga_produk;
-            unset($this->cart[$productId]);
-            unset($this->cartQuantities[$productId]);
+                if ($this->cartQuantities[$productId] <= 0) {
+                    // Hapus produk dari keranjang jika jumlahnya menjadi 0
+                    unset($this->cart[$productId]);
+                    unset($this->cartQuantities[$productId]);
+                } else {
+                    $this->totalPrice -= $this->cart[$productId]->harga_produk;
+                }
+            }
+        }
+
+        // Set totalPrice menjadi 0 jika keranjang kosong
+        if (empty($this->cart)) {
+            $this->totalPrice = 0;
         }
     }
 

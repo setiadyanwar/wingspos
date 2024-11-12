@@ -20,38 +20,29 @@
             </div>
         </div>
 
-        <!-- Right Side: Selected Product & Cart -->
-        <div class=" lg:w-1/4 lg:min-w-[250px] lg:flex-shrink-0 bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-6">
-            <h2 class="text-xl font-bold mb-2 text-black dark:text-white">Detail Produk</h2>
-            @if ($selectedProduct)
-                <div class="text-center">
-                    <img src="{{ asset('storage/' . $product['gambar_produk']) }}" alt="Selected Product" class="w-32 h-32 object-cover mb-2" />
-                    <h3 class="text-lg font-bold text-black dark:text-white">{{ $selectedProduct->nama_produk }}</h3>
-                    <p class="text-black dark:text-white">Harga: Rp {{ number_format($selectedProduct->harga_produk, 0, ',', '.') }}</p>
-
-                    <!-- Add to Cart Controls -->
-                    <div class="flex items-center justify-center mt-4">
-                        <button wire:click="updateCart({{ $selectedProduct->id }}, false)" class="px-4 py-2 bg-red-500 text-white rounded">-</button>
-                        <span class="mx-4 text-black dark:text-white">{{ collect($cart)->where('id', $selectedProduct->id)->first()['quantity'] ?? 0 }}</span>
-                        <button wire:click="updateCart({{ $selectedProduct->id }}, true)" class="px-4 py-2 bg-green-500 text-white rounded">+</button>
-                    </div>
-                </div>
-            @else
-                <p class="text-black dark:text-white">Pilih produk dari galeri untuk melihat detail.</p>
-            @endif
-
-            <!-- Cart Summary -->
-            <h2 class="text-xl font-bold mt-6 mb-2 text-black dark:text-white">Keranjang Belanja</h2>
+        <!-- Right Side: Cart -->
+        <div class="lg:w-1/4 lg:min-w-[250px] lg:flex-shrink-0 bg-gray-100 dark:bg-gray-800 shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold mb-2 text-black dark:text-white">Keranjang Belanja</h2>
             <ul class="mb-4 text-black dark:text-white">
                 @foreach($cart as $item)
                     <li class="flex justify-between">
                         <span>{{ $item['nama_produk'] }}</span>
-                        <span>{{ $item['quantity'] }} x Rp {{ number_format($item['harga_produk'], 0, ',', '.') }}</span>
+                        <span>
+                            <button wire:click="updateCart({{ $item->id }}, false)" class="px-2 bg-red-500 text-white rounded">-</button>
+                            {{ $cartQuantities[$item->id] ?? 0 }}
+                            <button wire:click="updateCart({{ $item->id }}, true)" class="px-2 bg-green-500 text-white rounded">+</button>
+                        </span>
+                        <span>Rp {{ number_format($item['harga_produk'] * $cartQuantities[$item->id], 0, ',', '.') }}</span>
                     </li>
                 @endforeach
             </ul>
             <hr class="my-2">
-            <p class="text-lg font-bold text-black dark:text-white">Total Harga: Rp {{ number_format($totalPrice, 0, ',', '.') }}</p>
+            @if ($totalPrice > 0)
+                <p class="text-lg font-bold text-black dark:text-white">Total Harga: Rp {{ number_format($totalPrice, 0, ',', '.') }}</p>
+            @endif
+
+            <!-- Memanggil CheckoutForm dan mengirimkan totalPrice -->
+            @livewire('checkout-form', ['totalPrice' => $totalPrice])
         </div>
     </div>
 </div>
