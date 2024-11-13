@@ -49,15 +49,23 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password() // Mengatur field menjadi input password
-                    ->required(fn ($livewire) => $livewire instanceof CreateUser)
-                    ->minLength(8)
-                    ->same('password_confirmation'),
-                Forms\Components\TextInput::make('password_confirmation')
-                    ->password() // Mengatur field menjadi input password
-                    ->required(fn ($livewire) => $livewire instanceof CreateUser),
+                Select::make('role')
+                    ->label('Role')
+                    ->options([
+                        'admin' => 'admin',
+                        'kasir' => 'kasir',
+                    ])
+                    ->required(),
+                // Forms\Components\TextInput::make('password')
+                //     ->password() // Mengatur field menjadi input password
+                //     ->required(fn ($livewire) => $livewire instanceof CreateUser)
+                //     ->minLength(8)
+                //     ->same('password_confirmation'),
+                // Forms\Components\TextInput::make('password_confirmation')
+                //     ->password() // Mengatur field menjadi input password
+                //     ->required(fn ($livewire) => $livewire instanceof CreateUser),
                 Select::make('roles')
+                    ->label('Role Permissions')
                     ->relationship('roles', 'name')
                     ->required(),
             ]);
