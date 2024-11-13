@@ -32,10 +32,10 @@ class Order extends Model
 
     public function updateTotal()
     {
-        // Hitung total dari semua item terkait
         $this->total = $this->items->sum('total_amount');
         $this->saveQuietly();
     }
+
 
     protected static function boot()
     {
