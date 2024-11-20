@@ -22,7 +22,6 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationIconSort = 1;
 
-    protected static ?string $navigationgroup = 'Toko';
 
     public static function form(Form $form): Form
     {
@@ -44,7 +43,7 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\ImageColumn::make('image')
-                    ->Label('Gambar Category'),
+                    ->Label('Image'),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_active')

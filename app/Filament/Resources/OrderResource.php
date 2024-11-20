@@ -43,11 +43,11 @@ class OrderResource extends Resource
                 Group::make()->schema([
                     Section::make('Order Information')->schema([
                         TextInput::make('name')
-                            ->label('Nama Costumer')
+                            ->label('Costumer Name')
                             ->dehydrated()
                             ->required(),
                         Select::make('payment_method')
-                            ->label('Metode Pembayaran')
+                            ->label('Payment Method')
                             ->options([
                                 'cash' => 'Cash',
                                 'transfer' => 'Transfer',
@@ -55,7 +55,7 @@ class OrderResource extends Resource
                             ])
                             ->required(),
                         Select::make('payment_status')
-                            ->label('Status Pembayaran')
+                            ->label('Payment Status')
                             ->options([
                                 'processing' => 'Processing',
                                 'completed' => 'Completed',
@@ -84,13 +84,13 @@ class OrderResource extends Resource
                             ->default('processing')
                             ->required(),
                         TextInput::make('order_date')
-                            ->label('Tanggal Order')
+                            ->label('Order Date')
                             ->required()
                             ->default(fn() => now()) 
                             ->disabled() 
                             ->dehydrated(), 
                         FileUpload::make('invoice')
-                            ->label('Upload Invoice')
+                            ->label('Invoice Upload')
                             ->directory('invoices')  
                             ->visibility('public') 
                             ->dehydrated() 
@@ -100,7 +100,7 @@ class OrderResource extends Resource
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/jpg'])
                             ->columnSpan(1),  
                         Textarea::make('note')
-                            ->label('Catatan')
+                            ->label('Note')
                             ->dehydrated()
                             ->columnSpanFull(),
                     ])->columns(2),
@@ -153,7 +153,7 @@ class OrderResource extends Resource
                             
 
                             Placeholder::make('total_placeholder')
-                                ->label('Total Keseluruhan')
+                                ->label('Total Amount')
                                 ->content(function(Get $get, Set $set){
                                     $total = 0;
                                     if(!$repeaters = $get('items')){
@@ -191,7 +191,7 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama Costumer')
+                    ->label('Costumer Name')
                     ->searchable()
                     ->sortable(),
                 
@@ -214,7 +214,7 @@ class OrderResource extends Resource
                     ->sortable(),
 
                 SelectColumn::make('payment_status')
-                    ->label('Status Pembayaran')
+                    ->label('Payment Status')
                     ->options([
                         'processing' => 'Processing',
                         'completed' => 'Completed',

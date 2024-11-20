@@ -9,7 +9,7 @@ use Flowframe\Trend\TrendValue;
 
 class WidgetChartPemasukan extends ChartWidget
 {
-    protected static ?string $heading = 'Pendapatan Harian';
+    protected static ?string $heading = 'Daily Income';
 
 
     protected function getData(): array
@@ -25,7 +25,7 @@ class WidgetChartPemasukan extends ChartWidget
     return [
         'datasets' => [
             [
-                'label' => 'Pendapatan',
+                'label' => 'Income',
                 'data' => $data->map(fn (TrendValue $value) => $value->aggregate),
             ],
         ],

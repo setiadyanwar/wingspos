@@ -42,18 +42,18 @@ class ProductResource extends Resource
                 Group::make()->schema([
                     Section::make('Product Information')->schema([
                         TextInput::make('nama_produk')
-                        ->label('Nama Produk')
+                        ->label('Product Name')
                         ->required(),
 
                         MarkdownEditor::make('deskripsi_produk')               
-                        ->label('Deskripsi Produk')
+                        ->label('Description')
                         ->required(),
 
                     ]),
 
                     Section::make('Images')->schema([
                         FileUpload::make('gambar_produk')
-                        ->label('Gambar Produk')
+                        ->label('Product Images')
                         ->directory('products-images')
                         ->maxFiles(5)
                         ->reorderable(),
@@ -64,7 +64,7 @@ class ProductResource extends Resource
                 Group::make()->schema([
                     Section::make('Price')->schema([
                         TextInput::make('harga_produk')
-                            ->label('Harga Produk')
+                            ->label('Product Price')
                             ->required()
                             ->type('number')
                             ->minValue(0) // Pastikan bahwa ini sesuai dengan kebutuhan Anda
@@ -72,7 +72,7 @@ class ProductResource extends Resource
                     ]),
                     Section::make('Stock')->schema([
                         TextInput::make('jumlah_stok')
-                            ->label('Jumlah Stok')
+                            ->label('Total Stock')
                             ->required()
                             ->type('number')
                             ->minValue(0) // Pastikan bahwa ini sesuai dengan kebutuhan Anda
@@ -97,28 +97,31 @@ class ProductResource extends Resource
         return $table
         ->columns([
             Tables\Columns\ImageColumn::make('gambar_produk') // Menampilkan gambar
-                ->label('Gambar')
+                ->label('Image')
                 ->disk('public')
                 ->size(50)
                 ->url(fn($record) => asset('storage/' . $record->gambar_produk)), 
             Tables\Columns\TextColumn::make('nama_produk')
-                ->label('Nama')
+                ->label('Product Name')
                 ->searchable(),
             Tables\Columns\TextColumn::make('category.name')
-                ->label('Kategori')
+                ->label('Category')
                 ->badge()
                 ->sortable()
                 ->searchable(),
             Tables\Columns\TextColumn::make('harga_produk')
-                ->label('Harga')
+                ->label('Price')
                 ->money('IDR', locale: 'id')
                 ->searchable(),
             Tables\Columns\TextColumn::make('jumlah_stok')
-                ->label('Jumlah Stok')
+                ->label('Stock')
                 ->searchable(),
             Tables\Columns\TextColumn::make('deskripsi_produk')
-                ->label('Deskripsi')
-                ->searchable(),
+                ->label('Description')
+                ->searchable()
+                ->wrap()
+                    ->extraAttributes([
+                        'style' => 'max-height: 100px; overflow-y: auto; white-space: normal; word-break: break-word; width: 200px;']),
 
         ])
             ->filters([

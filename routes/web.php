@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Resources\UserResource\Pages\CreateUser;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -12,4 +13,5 @@ Route::get('/produk', function () {
 
 Route::get('/checkout', function () {
     return view('checkout');
+
 });

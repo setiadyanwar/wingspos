@@ -56,14 +56,17 @@ class UserResource extends Resource
                         'kasir' => 'kasir',
                     ])
                     ->required(),
-                // Forms\Components\TextInput::make('password')
-                //     ->password() // Mengatur field menjadi input password
-                //     ->required(fn ($livewire) => $livewire instanceof CreateUser)
-                //     ->minLength(8)
-                //     ->same('password_confirmation'),
-                // Forms\Components\TextInput::make('password_confirmation')
-                //     ->password() // Mengatur field menjadi input password
-                //     ->required(fn ($livewire) => $livewire instanceof CreateUser),
+                Forms\Components\TextInput::make('password')
+                    ->password() // Mengatur field menjadi input password
+                    ->required(fn ($livewire) => $livewire instanceof CreateUser)
+                    ->minLength(8)
+                    ->same('password_confirmation')
+                    ->visible(fn ($livewire) => $livewire instanceof CreateUser),
+
+                Forms\Components\TextInput::make('password_confirmation')
+                    ->password() // Mengatur field menjadi input password
+                    ->required(fn ($livewire) => $livewire instanceof CreateUser)
+                    ->visible(fn ($livewire) => $livewire instanceof CreateUser),
                 Select::make('roles')
                     ->label('Role Permissions')
                     ->relationship('roles', 'name')

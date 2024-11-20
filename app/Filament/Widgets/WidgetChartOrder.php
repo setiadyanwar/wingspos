@@ -10,7 +10,7 @@ use Flowframe\Trend\TrendValue;
 class WidgetChartOrder extends ChartWidget
 {
     
-    protected static ?string $heading = 'Order Harian';
+    protected static ?string $heading = 'Daily Order';
     protected static string $color = 'success';
 
 

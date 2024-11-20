@@ -31,13 +31,13 @@ class StatsOverview extends BaseWidget
         $totalOrder = Order::count(); 
 
         return [
-            Stat::make('Omset', 'Rp. ' . number_format($totalOmset, 0, ',', '.'))
+            Stat::make('Revenue', 'Rp. ' . number_format($totalOmset, 0, ',', '.'))
                 ->description('Total revenue')
                 ->descriptionIcon('heroicon-o-arrow-trending-up', IconPosition::Before)
                 ->chart([100, 200, 300, 500, 650, $totalOmset]) 
                 ->color('success'),
 
-            Stat::make('Produk Terjual', $totalProdukterjual)
+            Stat::make('Sold Product', $totalProdukterjual)
                 ->description('Total products ordered')
                 ->descriptionIcon('heroicon-o-cube', IconPosition::Before)
                 ->chart([5, 10, 20, 30, 35, $totalProdukterjual]) 
